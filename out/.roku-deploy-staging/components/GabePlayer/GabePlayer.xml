@@ -1,0 +1,31 @@
+<!-- GabePlayer.xml -->
+<component name="GabePlayer" extends="Video">
+    <interface>
+        <!-- <field id="itemContent" type="node" onChange="showcontent"/> -->
+    </interface>
+    
+    <children>
+        <Group
+            id="progress"
+            translation="[0, 1060]"
+        >
+            <Rectangle
+                id="progressBackground"
+                width="1920"
+                height="20"
+                color="0xFF0000"
+                opacity="0.5"
+            />
+            <Rectangle
+                id="progressFill"
+                width="1"
+                height="20"
+                color="0xFF0000"
+                opacity="1"
+            />
+        </Group>
+    </children>
+
+    <script type="text/brightscript" uri="GabePlayer.brs" />
+    <!-- <script type="text/brightscript" uri="Thumbnails.brs" /> -->
+</component>
