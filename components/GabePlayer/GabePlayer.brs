@@ -307,14 +307,14 @@ sub updateProgressBar(newValue = invalid)
     end if
 
     if (m.ui_state.open) then
+        m.progress.translation = [0, 1020]
+        m.progressBackground.height = 60
+        m.progressFill.height = 60
+        m.progressLabel.visible = true
+    else
         m.progress.translation = [0, 1060]
         m.progressBackground.height = 20
         m.progressFill.height = 20
-        m.progressLabel.visible = true
-    else
-        m.progress.translation = [0, 1075]
-        m.progressBackground.height = 5
-        m.progressFill.height = 5
         m.progressLabel.visible = false
     end if
 end sub
