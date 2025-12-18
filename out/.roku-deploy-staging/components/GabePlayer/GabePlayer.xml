@@ -1,0 +1,45 @@
+<!-- GabePlayer.xml -->
+<component name="GabePlayer" extends="Video">
+    <interface>
+        <field id="customPlayerEvent" type="assocarray" alwaysNotify="true" />
+        <field id="config" type="assocarray" onChange="onConfigChange" />
+        <function name="play" />
+        <function name="pause" />
+    </interface>
+    
+    <children>
+        <Group
+            id="progress"
+            translation="[0, 1060]"
+        >
+            <Rectangle
+                id="progressBackground"
+                width="1920"
+                height="20"
+                color="0xFF0000"
+                opacity="0.5"
+            />
+            <Rectangle
+                id="progressFill"
+                width="1"
+                height="20"
+                color="0xFF0000"
+                opacity="1"
+            />
+            <Label
+                id="progressLabel"
+                visibile="false"
+                translation="[960, -60]"
+                text="||"
+                color="0xFF0000"
+                font="font:LargeBoldSystemFont"
+                width="200"
+                height="200"
+                scaleRotateCenter="[100, 100]"
+            />
+        </Group>
+    </children>
+
+    <script type="text/brightscript" uri="GabePlayer.brs" />
+    <!-- <script type="text/brightscript" uri="Thumbnails.brs" /> -->
+</component>
