@@ -10,6 +10,11 @@ sub init()
             color: "0x55CCD4"
         }
     }
+    m.VIDEO_FORMAT_REGEX = CreateObject("roRegex", "\.m3u8$|\.mpd$", "i")
+    m.VIDEO_EXT_TO_STREAMFORMAT = {
+        ".m3u8" : "hls",
+        ".mpd"  : "dash"
+    }
 
     m.ui_state = { open: true, skipKey: "" }
     m.amountToSeek = 0
@@ -17,9 +22,13 @@ sub init()
     m.player = m.top
     m.player.enableUI = false ' disables default UI
     ' m.player.enableTrickPlay = false ' necessary?
+    m.player.observeField("content", "onContentChange")
     m.player.observeField("state", "onVideoPlayerStateChange")
     m.player.observeField("position", "onPositionChange")
     m.player.observeField("contentIndex", "onPlaylistIndexChange")
+
+    m.loadingIcon = m.player.findNode("loadingIcon")
+    m.loadingIcon.visible = "false"
 
     ' For progress bar show/hide duration, after 5 seconds of inactivity hide the progress bar
     m.timer = CreateObject("roSGNode", "Timer")
@@ -38,6 +47,23 @@ sub init()
     m.fastforwardRewindTimer.observeField("fire", "onFastforwardRewindTimerFire")
 
     initProgressBar()
+end sub
+
+' Sets streamformat dynamically based on url extension (e.g. m3u8 -> hls, mpd -> dash)
+sub onContentChange()
+    contentChildren = m.player.content.getChildren(-1, 0)
+
+    for each video in contentChildren
+        data = video.getFields()
+
+        matches = m.VIDEO_FORMAT_REGEX.match(data.url)
+
+        if matches <> invalid and matches.Count() > 0 then
+            data.streamformat = m.VIDEO_EXT_TO_STREAMFORMAT[matches[0]]
+        end if
+
+        video.setFields(data)
+    end for
 end sub
 
 sub onConfigChange()
@@ -185,11 +211,12 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.fastforwardRewindTimer.control = "stop"
             end if
 
-            print m.player.state
-
             if m.player.state = "playing" then pause()
             if m.player.state = "paused" then play()
 
+            m.ui_state.open = true
+
+            updateProgressBar()
             onButtonPressTimerFire()
         end if
 
@@ -239,12 +266,13 @@ sub onVideoPlayerStateChange(event)
     if type(event) = "roSGNodeEvent" AND event.getField() = "state"
         print "m.player.state:"; m.player.state
         if m.player.state = "error" then
-            
-        ' else if m.videoPlayer.state = "playing"
+            ' TODO: display error label
         else if m.player.state = "finished" then
             m.player.visible = "false"
+        else if m.player.state = "buffering" then
+            m.loadingIcon.visible = "true"
         else
-            
+            m.loadingIcon.visible = "false"
         end if
         m.timer.control = "start"
     end if

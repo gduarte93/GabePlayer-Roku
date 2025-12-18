@@ -38,6 +38,31 @@
                 scaleRotateCenter="[100, 100]"
             />
         </Group>
+
+        <Group
+            id="loadingIcon"
+            translation="[760, 510]"
+            visibile="false"
+        >
+            <Rectangle
+                id="loadBackground"
+                width="400"
+                height="20"
+                color="0x000000"
+                width="400"
+                height="60"
+            />
+            <Label
+                id="loadLabel"
+                text="Loading..."
+                horizAlign="center"
+                vertAlign="center"
+                color="0xFFFFFF"
+                width="400"
+                height="60"
+            />
+        </Group>
+
     </children>
 
     <script type="text/brightscript" uri="GabePlayer.brs" />

@@ -10,14 +10,12 @@ sub init()
 
     videoList = [
         {
-            url          : "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-            streamformat : "hls",
-            title        : "HLS/m3u8 Video"
+            url   : "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
+            title : "HLS/m3u8 Video"
         },
         {
-            url          : "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
-            streamformat : "dash",
-            title        : "DASH/mpd Video"
+            url   : "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
+            title : "DASH/mpd Video"
         }
     ]
 
