@@ -2,6 +2,9 @@ sub init()
     m.top.setFocus(true)
 
     m.videoPlayer = m.top.findNode("videoPlayer")
+    ' m.videoPlayer.config = { theme: "hulu" }
+    m.videoPlayer.config = { theme: "espn" }
+    ' m.videoPlayer.config = { theme: "disney" }
     
     m.videoContent = CreateObject("roSGNode", "ContentNode")
     m.videoContent.url = "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
@@ -11,7 +14,7 @@ sub init()
 
     m.videoPlayer.content = m.videoContent
     m.videoPlayer.setFocus(true)
-    m.videoPlayer.control = "play"
+    m.videoPlayer.callFunc("play")
 
     ' For animating player size changes
     m.videoPlayer.scaleRotateCenter = [1920, 0]

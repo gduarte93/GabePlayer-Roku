@@ -1,4 +1,16 @@
 sub init()
+    m.THEMES = {
+        hulu: {
+            color: "0x1CE783"
+        },
+        espn: {
+            color: "0xFF0000"
+        },
+        disney: {
+            color: "0x55CCD4"
+        }
+    }
+
     m.ui_state = { open: true, skipKey: "" }
     m.amountToSeek = 0
 
@@ -27,15 +39,31 @@ sub init()
     initProgressBar()
 end sub
 
+sub onConfigChange()
+    progressBarColor = "0xFF0000"
+
+    theme = m.THEMES[m.player.config?.theme]
+
+    if theme <> invalid
+        progressBarColor = theme.color
+    end if
+
+    m.progressBackground.color = progressBarColor
+    m.progressFill.color = progressBarColor
+    m.progressLabel.color = progressBarColor
+end sub
+
 sub play()
+    m.progressLabel.text = "||"
     if m.player.state = "paused" then
         m.player.control = "resume"
     else
-        m.player.control = "start"
+        m.player.control = "play"
     end if
 end sub
 
 sub pause()
+    m.progressLabel.text = ">"
     m.player.control = "pause"
 end sub
 
@@ -53,7 +81,9 @@ sub onButtonPressTimerFire()
     m.buttonPressTimer.control = "stop"
     if m.amountToSeek = 0 return
 
-    m.player.seek = m.currentTime + m.amountToSeek
+    if m.currentTime <> invalid
+        m.player.seek = m.currentTime + m.amountToSeek
+    end if
     if m.player.seek < 0 then
         m.player.seek = 0
     end if
@@ -68,14 +98,24 @@ sub skip(amountToSkip = 10)
     m.amountToSeek = m.amountToSeek + amountToSkip
     m.buttonPressTimer.control = "stop"
 
-    updateProgressBar(m.currentTime + m.amountToSeek)
+    if m.currentTime <> invalid then
+        updateProgressBar(m.currentTime + m.amountToSeek)
+    end if
 end sub
 
 sub onFastforwardRewindTimerFire()
     if m.ui_state.skipKey = "fastforward" then
         skip()
+    else if m.ui_state.skipKey = "fastforward2" then
+        skip(20)
+    else if m.ui_state.skipKey = "fastforward3" then
+        skip(40)
     else if m.ui_state.skipKey = "rewind" then
         skip(-10)
+    else if m.ui_state.skipKey = "rewind2" then
+        skip(-20)
+    else if m.ui_state.skipKey = "rewind3" then
+        skip(-40)
     end if
 end sub
 
@@ -99,12 +139,26 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
         if key = "fastforward" then
             m.fastforwardRewindTimer.control = "start"
-            m.ui_state.skipKey = "fastforward"
+
+            if m.ui_state.skipKey = "fastforward" then
+                m.ui_state.skipKey = "fastforward2"
+            else if m.ui_state.skipKey = "fastforward2" then
+                m.ui_state.skipKey = "fastforward3"
+            else
+                m.ui_state.skipKey = "fastforward"
+            end if
         end if
 
         if key = "rewind" then
             m.fastforwardRewindTimer.control = "start"
-            m.ui_state.skipKey = "rewind"
+
+            if m.ui_state.skipKey = "rewind" then
+                m.ui_state.skipKey = "rewind2"
+            else if m.ui_state.skipKey = "rewind2" then
+                m.ui_state.skipKey = "rewind3"
+            else
+                m.ui_state.skipKey = "rewind"
+            end if
         end if
 
         if key = "OK" or key = "play" then
@@ -181,6 +235,7 @@ sub initProgressBar()
     m.progress = m.player.findNode("progress")
     m.progressBackground = m.player.findNode("progressBackground")
     m.progressFill = m.player.findNode("progressFill")
+    m.progressLabel = m.player.findNode("progressLabel")
 
     m.progressWidth = m.progressBackground.width
 end sub
@@ -195,13 +250,24 @@ sub updateProgressBar(newValue = invalid)
         m.progressFill.width = m.currentTime * (m.progressWidth / m.player.duration)
     end if
 
+    if m.amountToSeek <> 0 then
+        
+        if m.amountToSeek > 0 then
+            m.progressLabel.text = "+" + stri(m.amountToSeek)
+        else
+            m.progressLabel.text = stri(m.amountToSeek)
+        end if
+    end if
+
     if (m.ui_state.open) then
         m.progress.translation = [0, 1060]
         m.progressBackground.height = 20
         m.progressFill.height = 20
+        m.progressLabel.visible = true
     else
         m.progress.translation = [0, 1075]
         m.progressBackground.height = 5
         m.progressFill.height = 5
+        m.progressLabel.visible = false
     end if
 end sub
