@@ -11,19 +11,23 @@ sub init()
     videoList = [
         {
             url   : "https://dash.akamaized.net/akamai/bbb_30fps/bbb_with_multiple_tiled_thumbnails.mpd",
-            title : "DASH/mpd Video 1"
+            title : "DASH Video 1"
+            description : "This video has thumbnail data in the mpd to allow trick play seeking with images"
         },
         {
             url   : "https://raw.githubusercontent.com/rokudev/samples/master/media/TrickPlayThumbnailsHLS/master_withthumbs.m3u8",
-            title : "HLS/m3u8 Video 1"
+            title : "HLS Video 1"
+            description : "This video does not have thumbnail data in the m3u8, so no images while seeking"
         },
         {
             url   : "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8",
-            title : "HLS/m3u8 Video 2"
+            title : "HLS Video 2"
+            description : "Has closed caption data"
         },
         {
             url   : "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
-            title : "DASH/mpd Video 2"
+            title : "DASH Video 2"
+            description : "A second DASH video"
         }
     ]
 
@@ -62,7 +66,7 @@ sub handleCustomPlayerEvent(event as Object)
     
     print eventName
 
-    if eventName = "VIDEO_ENDING" then
+    if eventName = "VIDEO_ENDING" or eventName = "VIDEO_MINIMIZE" then
         m.videoPlayer.translation = [-20, 20]
         m.scaleAnim.control = "stop"
         m.interp.reverse = false

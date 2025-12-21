@@ -8,6 +8,34 @@
     </interface>
     
     <children>
+        <Group id="titleGroup" clippingRect="[0, 0, 1920, 1080]">
+            <Poster
+                id="headerGradient"
+                uri="pkg:/images/BackgroundGradient.png"
+                width="1920"
+                height="1080"
+                scaleRotateCenter="[960, 540]"
+                rotation="3.14159"
+                translation="[0, -400]"
+            />
+            <Label
+                id="titleLabel"
+                width="1920"
+                height="60"
+                text="Title"
+                color="0xFFFFFF"
+                translation="[20, 20]"
+            />
+            <Label
+                id="descriptionLabel"
+                width="1920"
+                height="60"
+                text="This is the description for the video"
+                color="0xFFFFFF"
+                translation="[20, 60]"
+            />
+        </Group>
+
         <Group
             id="progress"
             translation="[0, 1020]"
@@ -29,13 +57,28 @@
             <Label
                 id="progressLabel"
                 visibile="false"
-                translation="[860, -60]"
+                translation="[960, -60]"
                 text="||"
                 color="0xFF0000"
                 font="font:LargeBoldSystemFont"
                 width="200"
                 height="200"
                 scaleRotateCenter="[100, 100]"
+            />
+
+            <Label
+                id="currentTimeLabel"
+                color="0xFFFFFF"
+                text="00:00:00"
+                translation="[20, 16]"
+            />
+            <Label
+                id="endTimeLabel"
+                color="0xFFFFFF"
+                text="99:99:99"
+                translation="[-20, 16]"
+                horizAlign="right"
+                width="1920"
             />
         </Group>
 

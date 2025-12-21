@@ -33,6 +33,7 @@ sub init()
     m.player.observeField("thumbnailTiles", "onThumbnailTilesChange")
 
     m.loadingIcon = m.player.findNode("loadingIcon")
+    m.loadBackground = m.player.findNode("loadBackground")
     m.loadingIcon.visible = "false"
 
     ' For progress bar show/hide duration, after 5 seconds of inactivity hide the progress bar
@@ -51,6 +52,7 @@ sub init()
     m.fastforwardRewindTimer.repeat = true
     m.fastforwardRewindTimer.observeField("fire", "onFastforwardRewindTimerFire")
 
+    initTitle()
     initProgressBar()
     initSeekThumbnails()
 end sub
@@ -218,6 +220,7 @@ sub onConfigChange()
         progressBarColor = theme.color
     end if
 
+    m.loadBackground.color = progressBarColor
     m.progressBackground.color = progressBarColor
     m.progressFill.color = progressBarColor
     m.progressLabel.color = progressBarColor
@@ -245,6 +248,8 @@ sub onPositionChange()
         m.player.customPlayerEvent = { "status": "success", "event": "VIDEO_ENDING" }
     end if
 
+    m.currentTimeLabel.text = getTimestamp(m.currentTime)
+    m.endTimeLabel.text = getTimestamp(m.player.duration)
     updateProgressBar()
 end sub
 
@@ -256,6 +261,10 @@ sub onPlaylistIndexChange()
         print "PLAYING NEW VIDEO"
         m.player.thumbnailTiles = {}
         m.player.customPlayerEvent = { "status": "success", "event": "NEW_VIDEO_STARTING" }
+
+        m.title.text = currentVideo.title
+        m.description.text = currentVideo.description
+        m.progressLabel.text = "||"
     else
         print "INVALID nextVideo"
     end if
@@ -283,8 +292,13 @@ end sub
 ' TODO: show start and stop times, and also time to where amountToSeek will be
 sub skip(amountToSkip = 10)
     pause()
-    m.amountToSeek = m.amountToSeek + amountToSkip
     m.buttonPressTimer.control = "stop"
+    m.timer.control = "stop"
+
+    m.amountToSeek = m.amountToSeek + amountToSkip
+
+    if (m.amountToSeek > m.player.duration - m.currentTime) then m.amountToSeek = m.player.duration - m.currentTime
+    if m.amountToSeek < -1 * m.currentTime then m.amountToSeek = -1 * m.currentTime
 
     if m.currentTime <> invalid then
         updateProgressBar(m.currentTime + m.amountToSeek)
@@ -389,6 +403,16 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             m.timer.control = "stop"
             m.timer.control = "start"
             handled = true
+        else if NOT m.ui_state.open and key = "back" then
+            pause()
+            m.player.customPlayerEvent = { "status": "success", "event": "VIDEO_MINIMIZE" }
+            
+            parent = m.player.getParent()
+            if parent <> invalid then
+                parent.setFocus(true)
+            end if
+
+            handled = true
         end if
 
         ' Testing player scale/size change
@@ -425,11 +449,50 @@ sub onVideoPlayerStateChange(event)
     end if
 end sub
 
+sub initTitle()
+    m.titleGroup = m.player.findNode("titleGroup")
+    m.title = m.player.findNode("titleLabel")
+    m.description = m.player.findNode("descriptionLabel")
+
+    m.title.font.size = 32
+    m.description.font.size = 26
+
+    currentVideo = m.player.content?.getChild?(0)
+    if currentVideo <> invalid then
+        m.title.text = currentVideo.title
+        m.description.text = currentVideo.description
+    end if
+end sub
+
+function getTimestamp(seconds) as string
+    timestampString = ""
+
+    hours = Int(seconds / 3600)
+    minutes = Int((seconds MOD 3600) / 60)
+    seconds = seconds MOD 60
+
+    hoursStr = hours.toStr()
+    minutesStr = minutes.toStr()
+    secondsStr = seconds.toStr()
+
+    if hours < 10 then hoursStr = "0" + hoursStr
+    if minutes < 10 then minutesStr = "0" + minutesStr
+    if seconds < 10 then secondsStr = "0" + secondsStr
+
+    if hours > 0 then timestampString += hoursStr + ":" 
+    
+    timestampString += minutesStr + ":" + secondsStr
+
+    return timestampString
+end function
+
 sub initProgressBar()
     m.progress = m.player.findNode("progress")
     m.progressBackground = m.player.findNode("progressBackground")
     m.progressFill = m.player.findNode("progressFill")
     m.progressLabel = m.player.findNode("progressLabel")
+    m.currentTimeLabel = m.player.findNode("currentTimeLabel")
+    m.endTimeLabel = m.player.findNode("endTimeLabel")
 
     m.progressWidth = m.progressBackground.width
 end sub
@@ -472,9 +535,9 @@ sub updateProgressBar(newValue = invalid)
     if m.amountToSeek <> 0 then
         
         if m.amountToSeek > 0 then
-            m.progressLabel.text = "+" + stri(m.amountToSeek)
+            m.progressLabel.text = "+" + getTimestamp(m.amountToSeek)
         else
-            m.progressLabel.text = stri(m.amountToSeek)
+            m.progressLabel.text = "-" + getTimestamp(Abs(m.amountToSeek))
         end if
 
         if m.seekThumbGroup.visible = false then
@@ -484,7 +547,7 @@ sub updateProgressBar(newValue = invalid)
         end if
         
     else
-        m.progressLabel.translation = [860, -60]
+        m.progressLabel.translation = [960, -60]
         hideThumbnails()
     end if
 
@@ -493,11 +556,17 @@ sub updateProgressBar(newValue = invalid)
         m.progressBackground.height = 60
         m.progressFill.height = 60
         m.progressLabel.visible = true
+        m.titleGroup.visible = true
+        m.currentTimeLabel.visible = true
+        m.endTimeLabel.visible = true
     else
         m.progress.translation = [0, 1060]
         m.progressBackground.height = 20
         m.progressFill.height = 20
         m.progressLabel.visible = false
+        m.titleGroup.visible = false
+        m.currentTimeLabel.visible = false
+        m.endTimeLabel.visible = false
         hideThumbnails()
     end if
 end sub
